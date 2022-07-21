@@ -13,9 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class BaseController {
 
     @GetMapping("/")
-    public String root() throws Exception {
-        throw new Exception("For TEST");
-        //return "index";
+    public String root() {
+        return "index";
     }//func
 
 
