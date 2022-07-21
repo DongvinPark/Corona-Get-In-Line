@@ -23,6 +23,10 @@ public class APIDataResponse<T> extends APIErrorResponse {
         return new APIDataResponse<>(data);
     }
 
+    public static <T> APIDataResponse<T> empty(){
+        return new APIDataResponse<>(null);
+    }
+
     /*public static APIDataResponse of(boolean success, Integer errorCode, String message, Object data){
         return new APIDataResponse(success, errorCode, message, data);
     }*/

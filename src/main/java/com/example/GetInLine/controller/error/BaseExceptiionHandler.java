@@ -1,4 +1,4 @@
-package com.example.GetInLine.error;
+package com.example.GetInLine.controller.error;
 
 
 import com.example.GetInLine.constant.ErrorCode;
