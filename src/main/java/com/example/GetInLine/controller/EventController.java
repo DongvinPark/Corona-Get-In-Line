@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class EventController {
 
-    @GetMapping("/")
+    @GetMapping
     public String events() {
         return "event/index";
     }

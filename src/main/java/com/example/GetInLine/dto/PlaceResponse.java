@@ -3,29 +3,24 @@ package com.example.GetInLine.dto;
 
 import com.example.GetInLine.constant.PlaceType;
 
-import java.time.LocalDateTime;
-
-public record PlaceDTO(
+public record PlaceResponse(
         PlaceType placeType,
         String placeName,
         String address,
         String phoneNumber,
         Integer capacity,
-        String memo,
-        LocalDateTime createdAt,
-        LocalDateTime modifiedAt
+        String memo
 ) {
 
-    public static PlaceDTO of(
+    public static PlaceResponse of (
             PlaceType placeType,
             String placeName,
             String address,
             String phoneNumber,
             Integer capacity,
-            String memo,
-            LocalDateTime createdAt,
-            LocalDateTime modifiedAt
-    ) {
-        return new PlaceDTO(placeType, placeName, address, phoneNumber, capacity, memo, createdAt, modifiedAt);
+            String memo
+    ){
+        return new PlaceResponse(placeType, placeName, address, phoneNumber, capacity, memo);
     }
+
 }//end of class
