@@ -29,4 +29,35 @@ public record EventResponse(
         return new EventResponse(placeId, eventName, eventStatus, eventStartDatetime, eventEndDatetime, currentNumberOfPeople, capacity, memo);
     }
 
+
+
+    public static EventResponse from(EventDTO eventDTO){
+        if(eventDTO == null) { return null; }
+        return EventResponse.of(
+                eventDTO.placeId(),
+                eventDTO.eventName(),
+                eventDTO.eventStatus(),
+                eventDTO.eventStartDatetime(),
+                eventDTO.eventEndDatetime(),
+                eventDTO.currentNumberOfPeople(),
+                eventDTO.capacity(),
+                eventDTO.memo()
+        );
+    }//func
+
 }//end of class
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -13,9 +13,29 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ConstraintViolationException;
+
 //뷰가 아닌, API에 대한 예외 처리를 위한 것이다.
 @RestControllerAdvice(annotations = RestController.class)//이 부분을 통해서 JSON바디의 api를 다루는 클래스만을 범위로 작동하게끔 한정지을 수 있다.
 public class APIExceptionHandler extends ResponseEntityExceptionHandler {
+
+
+    //@Validated 을 이용한 예외처리를 실시할 때 발생하는 ConstraintViolationException을 처리하기 위한 ExceptionHandler다.
+    @ExceptionHandler
+    public ResponseEntity<Object> forValidatedException(ConstraintViolationException e, WebRequest request){
+        ErrorCode errorCode = ErrorCode.VALIDATION_ERROR;
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        return super.handleExceptionInternal(
+                e,
+                APIErrorResponse.of(false, errorCode.getCode(), errorCode.getMessage(e)),
+                HttpHeaders.EMPTY,
+                status,
+                request
+        );
+    }//func
+
+
 
     //ResponseEntityExceptionHandler는 스프링 mvc를 쓸 때 발생할 수 있는 예외들을 미리 모아놔서 편리하게
     // 처리할 수 있게 해주는 클래스다.
@@ -42,6 +62,8 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
 
 
 
+
+
     @ExceptionHandler
     public ResponseEntity<Object> exception(Exception e, WebRequest request){
         ErrorCode errorCode = ErrorCode.INTERNAL_ERROR;
@@ -59,6 +81,9 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
                         false, errorCode, errorCode.getMessage(e)
                 ));*/
     }
+
+
+
 
     //원래 아래의 메서드는 바디를 갖지 않지만, 내가 바디를 직접 넣어준 것.
     @Override
