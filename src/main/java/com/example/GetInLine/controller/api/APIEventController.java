@@ -31,6 +31,10 @@ public class APIEventController {
 
     private final EventService eventService;
 
+
+
+
+
     @GetMapping("/events")
     public APIDataResponse<List<EventResponse>> getEvents(
             @Positive Long placeId,
@@ -64,45 +68,48 @@ public class APIEventController {
         return APIDataResponse.of(responses);
     }//func
 
+
+
+
+
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/events")
-    public APIDataResponse<Void> createEvent(@Valid @RequestBody EventRequest eventRequest){
-        return APIDataResponse.empty();
+    public APIDataResponse<String> createEvent(@Valid @RequestBody EventRequest eventRequest){
+
+        boolean result = eventService.createEvent(eventRequest.toDTO());
+
+        return APIDataResponse.of(Boolean.toString(result));
     }//func
 
-    @GetMapping("/events/{eventId}")
-    public APIDataResponse<EventResponse> getEvent(@PathVariable Long eventId){
-        if(eventId.equals(2L)){
-            return APIDataResponse.empty();
-        }
 
-        return APIDataResponse.of(
-                EventResponse.of(
-                        1L,
-                        "오후 운동",
-                        EventStatus.OPENED,
-                        LocalDateTime.of(2021,1,1,13,0,0),
-                        LocalDateTime.of(2021,1,1,16,0,0),
-                        0,
-                        24,
-                        "마스크 꼭 착용하세요"
-                )
-        );
+
+
+
+
+    @GetMapping("/events/{eventId}")
+    public APIDataResponse<EventResponse> getEvent(@Positive @PathVariable Long eventId){
+        EventResponse eventResponse = EventResponse.from(eventService.getEvent(eventId).orElse(null));
+
+        return APIDataResponse.of(eventResponse);
     }//func
 
     @PutMapping("/events/{eventId}")
-    public APIDataResponse<Void> modifyEvent(
-            @PathVariable Long eventId,
-            @RequestBody EventRequest eventREquest
+    public APIDataResponse<String> modifyEvent(
+            @Positive @PathVariable Long eventId,
+            @Valid @RequestBody EventRequest eventREquest
     ){
-        return APIDataResponse.empty();
+        boolean result = eventService.modifyEvent(eventId, eventREquest.toDTO());
+
+        return APIDataResponse.of(Boolean.toString(result));
     }//func
 
     @DeleteMapping("/events/{eventId}")
-    public APIDataResponse<Void> removeEvent(
-            @PathVariable Long eventId
+    public APIDataResponse<String> removeEvent(
+            @Positive @PathVariable Long eventId
     ){
-        return APIDataResponse.empty();
+        boolean result = eventService.removeEvent(eventId);
+
+        return APIDataResponse.of(Boolean.toString(result));
     }//func
 
 

@@ -33,4 +33,20 @@ public record EventRequest(
         return new EventRequest(placeId, eventName, eventStatus, eventStartDatetime, eventEndDatetime, currentNumberOfPeople, capacity, memo);
     }
 
+
+    public EventDTO toDTO(){
+        return EventDTO.of(
+                this.placeId(),
+                this.eventName(),
+                this.eventStatus(),
+                this.eventStartDatetime(),
+                this.eventEndDatetime(),
+                this.currentNumberOfPeople(),
+                this.capacity(),
+                this.memo(),
+                null,
+                null
+        );
+    }//func
+
 }//end of class

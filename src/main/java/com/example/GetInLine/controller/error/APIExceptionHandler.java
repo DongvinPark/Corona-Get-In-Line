@@ -19,26 +19,18 @@ import javax.validation.ConstraintViolationException;
 @RestControllerAdvice(annotations = RestController.class)//이 부분을 통해서 JSON바디의 api를 다루는 클래스만을 범위로 작동하게끔 한정지을 수 있다.
 public class APIExceptionHandler extends ResponseEntityExceptionHandler {
 
+    //ResponseEntityExceptionHandler는 스프링 mvc를 쓸 때 발생할 수 있는 예외들을 미리 모아놔서 편리하게
+    // 처리할 수 있게 해주는 클래스다.
 
     //@Validated 을 이용한 예외처리를 실시할 때 발생하는 ConstraintViolationException을 처리하기 위한 ExceptionHandler다.
     @ExceptionHandler
     public ResponseEntity<Object> forValidatedException(ConstraintViolationException e, WebRequest request){
-        ErrorCode errorCode = ErrorCode.VALIDATION_ERROR;
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-
-        return super.handleExceptionInternal(
-                e,
-                APIErrorResponse.of(false, errorCode.getCode(), errorCode.getMessage(e)),
-                HttpHeaders.EMPTY,
-                status,
-                request
-        );
+        return getInternalResponseEntity(e, ErrorCode.VALIDATION_ERROR, HttpHeaders.EMPTY, HttpStatus.BAD_REQUEST, request);
     }//func
 
 
 
-    //ResponseEntityExceptionHandler는 스프링 mvc를 쓸 때 발생할 수 있는 예외들을 미리 모아놔서 편리하게
-    // 처리할 수 있게 해주는 클래스다.
+
 
     @ExceptionHandler
     public ResponseEntity<Object> general(GeneralException e, WebRequest request){
@@ -47,12 +39,7 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST :
                 HttpStatus.INTERNAL_SERVER_ERROR;
 
-        return super.handleExceptionInternal(
-                e,
-                APIErrorResponse.of(false, errorCode.getCode(), errorCode.getMessage(e)),
-                HttpHeaders.EMPTY,
-                status,
-                request);
+        return getInternalResponseEntity(e, errorCode, HttpHeaders.EMPTY, status, request);
         /*return ResponseEntity
                 .status(status)
                 .body(APIErrorResponse.of(
@@ -66,15 +53,7 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<Object> exception(Exception e, WebRequest request){
-        ErrorCode errorCode = ErrorCode.INTERNAL_ERROR;
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-
-        return super.handleExceptionInternal(
-                e,
-                APIErrorResponse.of(false, errorCode.getCode(), errorCode.getMessage(e)),
-                HttpHeaders.EMPTY,
-                status,
-                request);
+        return getInternalResponseEntity(e, ErrorCode.INTERNAL_ERROR, HttpHeaders.EMPTY, HttpStatus.INTERNAL_SERVER_ERROR, request);
         /*return ResponseEntity
                 .status(status)
                 .body(APIErrorResponse.of(
@@ -85,18 +64,25 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
 
 
 
-    //원래 아래의 메서드는 바디를 갖지 않지만, 내가 바디를 직접 넣어준 것.
+
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
         ErrorCode errorCode = status.is4xxClientError() ?
                 ErrorCode.SPRING_BAD_REQUEST :
                 ErrorCode.SPRING_INTERNAL_ERROR;
 
+        return getInternalResponseEntity(ex, errorCode, headers, status, request);
+    }
+
+
+    //>>>>> Helper Method Area <<<<<
+    private ResponseEntity<Object> getInternalResponseEntity(Exception e, ErrorCode errorCode, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return super.handleExceptionInternal(
-                ex,
-                APIErrorResponse.of(false, errorCode.getCode(), errorCode.getMessage(ex)),
+                e,
+                APIErrorResponse.of(false, errorCode.getCode(), errorCode.getMessage(e)),
                 headers,
                 status,
-                request);
+                request
+        );
     }
 }//end of class

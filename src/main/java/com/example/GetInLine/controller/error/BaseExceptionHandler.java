@@ -12,7 +12,7 @@ import java.util.Map;
 
 //컨트롤러 어드바이스의 등장이다. 뷰에 대한 예외 처리를 위한 것이다.
 @ControllerAdvice
-public class BaseExceptiionHandler {
+public class BaseExceptionHandler {
 
     @ExceptionHandler
     public ModelAndView general(GeneralException e){
