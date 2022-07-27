@@ -1,3 +1,61 @@
+<!--
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+    <body>
+    <p>
+        <span id="eventsTitle" th:text="'이벤트 리스트 조회' ?: _">This is events page.</span>
+    </p>
+    <table id="eventsTable">
+        <thead>
+            <tr>
+                <th>장소 ID</th>
+                <th>이벤트명</th>
+                <th>이벤트 상태</th>
+                <th>시작 일시</th>
+                <th>종료 일시</th>
+                <th>현재 인원</th>
+                <th>최대 수용 인원</th>
+                <th>상세</th>
+            </tr>
+        </thead>
+        <tbody>
+        <tbody> 대신에 <tbody th:remove="all-but-first">>를 넣어주면, 첫 번째 <tr></tr>
+        부분이 데이터를 EventController.java 클래스로부터 받지 못했을 경우 첫 번째 <tr></tr>대신
+        그 후에 넣어 놓은 다른 <tr></tr>을 DEFAULT 데이터로 표시해 줄 수 있다.
+        반대로 말하면, 정상적으로 EventController.java 클래스로부터 데이터를 받아서 첫 번째 <tr></>tr>
+        이 표시할 수 있게 되면, 그 후의 다른 <tr></tr>들이 표시되지 않게 된다. 그래서 all-but-first라고 한 것이다.
+
+        >>> 하지만 이러한 방식은 뷰 부분의 코드가 길어지게 만들고, 타임리프 문법을 모르는 사람이 봤을 때 정확히 어떻게 동작하는지를
+        이해하기 어려운 측면이 있다. 따라서, de-coupled 로직을 활성화시켜서 뷰 부분이 타임리프 코드가 아니라 HTML5코드의
+        형태를 가지게 하면서도, 위에서 언급했던 기능을 그대로 할 수 있게 해줄 수 있다.
+        이것은 좀 더 고차원적인 타임리프 사용기법이라고 할 수 있다.
+
+        >>> 단, 디커플드 로직을 활성화시키기 위해서는 applacation.properties 파일에서 간편하게 설정할 수는 없고,
+           사용자가 직접 관련 Bean과 Configuration을 작성해서 스프링에게 알려주는 작업을 해야 한다.
+           자세히 어떻게 하는지는 config 패키지 내부의 ThymeleafConfig.java 클래스 파일 내부에서 설명할 것이다.
+
+            <tr th:each="event : ${events}">
+                <td class="placeId" th:text="${event.placeId}">1</td>
+                <td class="eventName" th:text="${event.eventName}">테스트 이벤트</td>
+                <td class="eventStatus" th:text="${event.eventStatus}">OPENED</td>
+                <td class="eventStartDatetime" th:text="${event.eventStartDatetime}">2021-01-01 09:00:00</td>
+                <td class="eventEndDatetime" th:text="${event.eventEndDatetime}">2021-01-01 10:00:00</td>
+                <td class="currentNumberOfPeople" th:text="${event.currentNumberOfPeople}">0</td>
+                <td class="capacity" th:text="${event.capacity}">10</td>
+                <td><a>상세</a></td>
+            </tr>
+        </tbody>
+    </table>
+    </body>
+</html>
+-->
+<!-- Decoupled 로직을 작동시키고나면, html 파일에서 더 이상 타임리프 문법 관련
+     표기를 해줄 필요가 없게 된다.
+ -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +63,34 @@
     <title>Title</title>
 </head>
 <body>
-This is events page.
+<p>
+    <span id="eventsTitle">This is events page.</span>
+</p>
+<table id="eventsTable">
+    <thead>
+    <tr>
+        <th>장소 ID</th>
+        <th>이벤트명</th>
+        <th>이벤트 상태</th>
+        <th>시작 일시</th>
+        <th>종료 일시</th>
+        <th>현재 인원</th>
+        <th>최대 수용 인원</th>
+        <th>상세</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td class="placeId">1</td>
+        <td class="eventName">테스트 이벤트</td>
+        <td class="eventStatus">OPENED</td>
+        <td class="eventStartDatetime">2021-01-01 09:00:00</td>
+        <td class="eventEndDatetime">2021-01-01 10:00:00</td>
+        <td class="currentNumberOfPeople">0</td>
+        <td class="capacity">10</td>
+        <td><a>상세</a></td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>
