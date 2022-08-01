@@ -2,12 +2,13 @@ package com.example.GetInLine.dto;
 
 
 import com.example.GetInLine.constant.EventStatus;
+import com.example.GetInLine.domain.Place;
 
 import java.time.LocalDateTime;
 
 public record EventResponse(
         Long id,
-        Long placeId,
+        PlaceDTO placeDTO,
         String eventName,
         EventStatus eventStatus,
         LocalDateTime eventStartDatetime,
@@ -19,7 +20,7 @@ public record EventResponse(
 
     public static EventResponse of(
             Long id,
-            Long placeId,
+            PlaceDTO placeDTO,
             String eventName,
             EventStatus eventStatus,
             LocalDateTime eventStartDatetime,
@@ -28,7 +29,7 @@ public record EventResponse(
             Integer capacity,
             String memo
     ){
-        return new EventResponse(id, placeId, eventName, eventStatus, eventStartDatetime, eventEndDatetime, currentNumberOfPeople, capacity, memo);
+        return new EventResponse(id, placeDTO, eventName, eventStatus, eventStartDatetime, eventEndDatetime, currentNumberOfPeople, capacity, memo);
     }
 
 
@@ -37,7 +38,7 @@ public record EventResponse(
         if(eventDTO == null) { return null; }
         return EventResponse.of(
                 eventDTO.id(),
-                eventDTO.placeId(),
+                eventDTO.placeDTO(),
                 eventDTO.eventName(),
                 eventDTO.eventStatus(),
                 eventDTO.eventStartDatetime(),

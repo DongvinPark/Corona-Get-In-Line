@@ -18,6 +18,7 @@ public class APIPlaceController {
         return APIDataResponse.of(
                 List.of(
                         PlaceResponse.of(
+                                1L,
                                 PlaceType.COMMON,
                                 "랄라배드민턴장",
                                 "서울시 강남구 강남대로 1234",
@@ -29,11 +30,20 @@ public class APIPlaceController {
         );//return
     }//func
 
+
+
+
+
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/places")
     public APIDataResponse<Void> createPlace(@RequestBody PlaceRequest placeRequest){
         return APIDataResponse.empty();
     }//func
+
+
+
+
+
 
     @GetMapping("/places/{placeId}")
     public APIDataResponse<PlaceResponse> getPlace(@PathVariable Long placeId){
@@ -42,6 +52,7 @@ public class APIPlaceController {
         }
 
         return APIDataResponse.of(PlaceResponse.of(
+                placeId,
                 PlaceType.COMMON,
                 "랄라배드민턴장",
                 "서울시 강남구 강남대로 1234",
@@ -53,6 +64,10 @@ public class APIPlaceController {
     }//func
 
 
+
+
+
+
     @PutMapping("/places/{placeId}")
     public APIDataResponse<Void> modifyPlace(
             @PathVariable Long placeId,
@@ -60,6 +75,10 @@ public class APIPlaceController {
     ){
         return APIDataResponse.empty();
     }
+
+
+
+
 
     @DeleteMapping("/places/{placeId}")
     public APIDataResponse<Void> removePlace(@PathVariable Long placeId){

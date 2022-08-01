@@ -2,28 +2,51 @@ package com.example.GetInLine.repository;
 
 
 import com.example.GetInLine.constant.EventStatus;
+import com.example.GetInLine.domain.Event;
+import com.example.GetInLine.domain.QEvent;
 import com.example.GetInLine.dto.EventDTO;
+import com.example.GetInLine.repository.querydsl.EventRepositoryCustom;
+import com.querydsl.core.types.dsl.ComparableExpression;
+import com.querydsl.core.types.dsl.StringExpression;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import org.springframework.data.querydsl.binding.QuerydslBinderCustomizer;
+import org.springframework.data.querydsl.binding.QuerydslBindings;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface EventRepository {
+/*
+* 여기는 전체적으로 어떻게 작동하고, 무엇을 위해 존재하는 거지?? 복습이 필요하다.
+* */
+public interface EventRepository extends
+        JpaRepository<Event, Long>,
+        EventRepositoryCustom,
+        QuerydslPredicateExecutor<Event>,
+        QuerydslBinderCustomizer<QEvent>
+{
+    @Override
+    default void customize(QuerydslBindings bindings, QEvent root){
+        bindings.excludeUnlistedProperties(true);
+        bindings.including(root.place.placeName, root.eventName, root.eventStatus, root.eventStartDatetime, root.eventEndDatetime);
+        bindings.bind(root.place.placeName).first(StringExpression::containsIgnoreCase);
+        bindings.bind(root.eventName).first(StringExpression::containsIgnoreCase);
+        bindings.bind(root.eventStartDatetime).first(ComparableExpression::goe);
+        bindings.bind(root.eventEndDatetime).first(ComparableExpression::loe);
+    }
 
-    //default를 쓴 이유 : 원래는 config 패키지의 RepositoryConfig.java 클래스 내부에서 구현을 다 해줘야 하는데
-    //defalut를 써서 미리 구현을 해 놓으면 RepositoryConfig.java 내부를 깔끔하게 유지할 수 있다.
-    //결론적으로, repository layer 구현이 완료되면 삭제해야 함.
-
-    default List<EventDTO> findEvents(
-        Long placeId,
-        String eventName,
-        EventStatus eventStatus,
-        LocalDateTime eventStartDatetime,
-        LocalDateTime eventEndDatetime
-    ){ return List.of(); }
-    default Optional<EventDTO> findEvent(Long eventId){ return Optional.empty(); }
-    default boolean insertEvent(EventDTO eventDTO) {return false;}
-    default boolean updateEvent(Long eventId, EventDTO eventDTO) {return false;}
-    default boolean deleteEvent(Long eventId) {return false;}
 
 }//end of class
+
+
+
+
+
+
+
+
+
+
+
+

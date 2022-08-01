@@ -3,10 +3,8 @@ package com.example.GetInLine.controller.api;
 
 import com.example.GetInLine.constant.ErrorCode;
 import com.example.GetInLine.constant.EventStatus;
-import com.example.GetInLine.dto.APIDataResponse;
-import com.example.GetInLine.dto.APIErrorResponse;
-import com.example.GetInLine.dto.EventRequest;
-import com.example.GetInLine.dto.EventResponse;
+import com.example.GetInLine.constant.PlaceType;
+import com.example.GetInLine.dto.*;
 import com.example.GetInLine.exception.GeneralException;
 import com.example.GetInLine.service.EventService;
 import lombok.RequiredArgsConstructor;
@@ -23,97 +21,85 @@ import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Validated
+/**
+ * Spring Data REST 로 API 를 만들어서 당장 필요가 없어진 컨트롤러.
+ * 우선 deprecated 하고, 향후 사용 방안을 고민해 본다.
+ * 필요에 따라서는 다시 살릴 수도 있음
+ *
+ * @deprecated 0.1.2
+ */
+@Deprecated
 @RequiredArgsConstructor
-@RequestMapping("/api")
-@RestController
+//@Validated
+//@RequestMapping("/api")
+//@RestController
 public class APIEventController {
 
     private final EventService eventService;
 
-
-
-
-
     @GetMapping("/events")
     public APIDataResponse<List<EventResponse>> getEvents(
             @Positive Long placeId,
-            @Size(min=2) String eventName,
+            @Size(min = 2) String eventName,
             EventStatus eventStatus,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime eventStartDatetime,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime eventEndDatetime
-    ){
-        /*return APIDataResponse.of(
-                List.of(
-                        EventResponse.of(
-                                1L,
-                                "오후 운동",
-                                EventStatus.OPENED,
-                                LocalDateTime.of(2021,1,1,13,0,0),
-                                LocalDateTime.of(2021,1,1,16,0,0),
-                                0,
-                                24,
-                                "마스크 꼭 착용하세요"
-                        )
-                )
-        );*/ // EventService eventService;를 사용하게 되면서 이 부분은 필요 없게 되었다.
-
-        //eventService.getEvents(...)의 리턴 결과는 List<EventDTO>이므로 이를 List<EventResponse>로 타입변환을
-        //해 줘야 한다. 이러한 타입 변환의 책임을 컨트롤러 계층에 전부 포함시키는 것은 컨트롤러가 비대해질 수 있는 위험이 있다.
-        //EventDTO는 D.T.O.이기 때문에 자주 바뀌어서는 안 되므로, 필요로 하는 변환 로직은 EventResponse에서 담당하도록 한다.
-        List<EventResponse> responses = eventService
-                .getEvents(placeId, eventName, eventStatus, eventStartDatetime, eventEndDatetime)
-                .stream().map(EventResponse::from).toList();
-
-        return APIDataResponse.of(responses);
-    }//func
-
-
-
-
+    ) {
+        return APIDataResponse.of(List.of(EventResponse.of(
+                1L,
+                PlaceDTO.of(
+                        1L,
+                        PlaceType.SPORTS,
+                        "배드민턴장",
+                        "서울시 가나구 다라동",
+                        "010-1111-2222",
+                        0,
+                        null,
+                        LocalDateTime.now(),
+                        LocalDateTime.now()
+                ),
+                "오후 운동",
+                EventStatus.OPENED,
+                LocalDateTime.of(2021, 1, 1, 13, 0, 0),
+                LocalDateTime.of(2021, 1, 1, 16, 0, 0),
+                0,
+                24,
+                "마스크 꼭 착용하세요"
+        )));
+    }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/events")
-    public APIDataResponse<String> createEvent(@Valid @RequestBody EventRequest eventRequest){
-
+    public APIDataResponse<String> createEvent(@Valid @RequestBody EventRequest eventRequest) {
         boolean result = eventService.createEvent(eventRequest.toDTO());
 
         return APIDataResponse.of(Boolean.toString(result));
-    }//func
-
-
-
-
-
+    }
 
     @GetMapping("/events/{eventId}")
-    public APIDataResponse<EventResponse> getEvent(@Positive @PathVariable Long eventId){
+    public APIDataResponse<EventResponse> getEvent(@Positive @PathVariable Long eventId) {
         EventResponse eventResponse = EventResponse.from(eventService.getEvent(eventId).orElse(null));
 
         return APIDataResponse.of(eventResponse);
-    }//func
+    }
 
     @PutMapping("/events/{eventId}")
     public APIDataResponse<String> modifyEvent(
             @Positive @PathVariable Long eventId,
-            @Valid @RequestBody EventRequest eventREquest
-    ){
-        boolean result = eventService.modifyEvent(eventId, eventREquest.toDTO());
-
+            @Valid @RequestBody EventRequest eventRequest
+    ) {
+        boolean result = eventService.modifyEvent(eventId, eventRequest.toDTO());
         return APIDataResponse.of(Boolean.toString(result));
-    }//func
+    }
 
     @DeleteMapping("/events/{eventId}")
-    public APIDataResponse<String> removeEvent(
-            @Positive @PathVariable Long eventId
-    ){
+    public APIDataResponse<String> removeEvent(@Positive @PathVariable Long eventId) {
         boolean result = eventService.removeEvent(eventId);
 
         return APIDataResponse.of(Boolean.toString(result));
-    }//func
+    }
 
-
-}//end of class
+}
 
 
 

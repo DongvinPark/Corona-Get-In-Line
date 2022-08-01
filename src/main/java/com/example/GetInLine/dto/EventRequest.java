@@ -37,7 +37,8 @@ public record EventRequest(
     public EventDTO toDTO(){
         return EventDTO.of(
                 null,
-                this.placeId(),
+                null,//직전 커밋에서는 this.placeId(),이었는데, 김은호 쌤 깃허브에서는 여기를 null로 하고,
+                            //TODO : 여기를 반드시 적절히 고쳐야 사용할 수 있음. 이라고 써 있었음.
                 this.eventName(),
                 this.eventStatus(),
                 this.eventStartDatetime(),

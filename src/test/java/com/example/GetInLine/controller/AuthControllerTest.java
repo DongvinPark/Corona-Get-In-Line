@@ -12,6 +12,8 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+
+@DisplayName("View 컨트롤러 - 인증")
 @WebMvcTest(AuthController.class)
 class AuthControllerTest {
 
@@ -20,6 +22,11 @@ class AuthControllerTest {
     public AuthControllerTest(@Autowired MockMvc mvc) {
         this.mvc = mvc;
     }
+
+
+
+
+
 
     @DisplayName("[view][GET] 로그인 페이지")
     @Test

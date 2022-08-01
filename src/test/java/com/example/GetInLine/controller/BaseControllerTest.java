@@ -13,6 +13,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+
+
+@DisplayName("View 컨트롤러 - 기본 페이지")
 @WebMvcTest(BaseController.class)
 class BaseControllerTest {
 
@@ -21,6 +24,11 @@ class BaseControllerTest {
     public BaseControllerTest(@Autowired MockMvc mvc) {
         this.mvc = mvc;
     }
+
+
+
+
+
 
     @DisplayName("[view][GET] 기본 페이지 요청")
     @Test

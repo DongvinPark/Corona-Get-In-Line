@@ -2,10 +2,13 @@ package com.example.GetInLine.controller.api;
 
 import com.example.GetInLine.constant.ErrorCode;
 import com.example.GetInLine.constant.EventStatus;
+import com.example.GetInLine.constant.PlaceType;
 import com.example.GetInLine.dto.EventDTO;
 import com.example.GetInLine.dto.EventResponse;
+import com.example.GetInLine.dto.PlaceDTO;
 import com.example.GetInLine.service.EventService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,19 +30,15 @@ import static org.mockito.BDDMockito.then;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
+@Deprecated
+@Disabled("API 컨트롤러가 필요없는 상황이어서 비활성화")
+@DisplayName("API 컨트롤러 - 이벤트")
 @WebMvcTest(APIEventController.class)
 class APIEventControllerTest {
 
     private final MockMvc mvc;
     private final ObjectMapper mapper;
 
-    //@MockBean은 스프링 프레임워크에서 정의된 내용이다. 즉, 스프링프레임워크가 이미 Mockito를 포함하고 있는 것.
-    //원본 클래스인 APIEventController.java 내의
-    // private final EventService eventService; 필드를 Mock 을 이용한 테스트에 활용하기 위해서는
-    //Mockito가 Mock 객체를 아래의 private EventService eventService;에 주입해줘야 한다.
-    //MockBean은 생성자 주입 방식으로는 초기화 할 수 없다는 점을 유의해야 한다.
-    // 또한, Dirty Context의 문제가 발생함을 기억해야 한다.
     @MockBean private EventService eventService;
 
     public APIEventControllerTest(
@@ -50,24 +49,19 @@ class APIEventControllerTest {
         this.mapper = mapper;
     }
 
-
-
-
-
-
     @DisplayName("[API][GET] 이벤트 리스트 조회 + 검색 파라미터")
     @Test
     void givenParameters_whenRequestingEvents_thenReturnsListOfEventsInStandardResponse() throws Exception {
-        //Given
-        given(eventService.getEvents(any(), any(), any(), any(), any())).willReturn(List.of(createEventDTO()));
+        // Given
 
-        //When & Then
-        mvc.perform(get("/api/events")
-                        .queryParam("placeId", "1")
-                        .queryParam("eventName", "운동")
-                        .queryParam("eventStatus", EventStatus.OPENED.name())
-                        .queryParam("eventStartDatetime", "2021-01-01T00:00:00")
-                        .queryParam("eventEndDatetime", "2021-01-02T00:00:00")
+        // When & Then
+        mvc.perform(
+                        get("/api/events")
+                                .queryParam("placeId", "1")
+                                .queryParam("eventName", "운동")
+                                .queryParam("eventStatus", EventStatus.OPENED.name())
+                                .queryParam("eventStartDatetime", "2021-01-01T00:00:00")
+                                .queryParam("eventEndDatetime", "2021-01-02T00:00:00")
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -75,54 +69,37 @@ class APIEventControllerTest {
                 .andExpect(jsonPath("$.data[0].placeId").value(1L))
                 .andExpect(jsonPath("$.data[0].eventName").value("오후 운동"))
                 .andExpect(jsonPath("$.data[0].eventStatus").value(EventStatus.OPENED.name()))
-                .andExpect(jsonPath("$.data[0].eventStartDatetime").value(LocalDateTime.of(2021,1,1,13,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
-                .andExpect(jsonPath("$.data[0].eventEndDatetime").value(LocalDateTime.of(2021,1,1,16,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                .andExpect(jsonPath("$.data[0].eventStartDatetime").value(LocalDateTime
+                        .of(2021, 1, 1, 13, 0, 0)
+                        .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                .andExpect(jsonPath("$.data[0].eventEndDatetime").value(LocalDateTime
+                        .of(2021, 1, 1, 16, 0, 0)
+                        .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                 .andExpect(jsonPath("$.data[0].currentNumberOfPeople").value(0))
                 .andExpect(jsonPath("$.data[0].capacity").value(24))
                 .andExpect(jsonPath("$.data[0].memo").value("마스크 꼭 착용하세요"))
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.errorCode").value(ErrorCode.OK.getCode()))
                 .andExpect(jsonPath("$.message").value(ErrorCode.OK.getMessage()));
-        then(eventService).should().getEvents(any(), any(), any(), any(), any());
-    }//func
+    }
 
-
-
-
-
-
-
-    //@Validated를 이용한 검증을 구현하기 위한 테스트다. 여기에서는 ConstraintViolationException이 발생하고 이것은
-    // 사용자가 직접 잡아내서 처리해야 하기 때문에 ErrorCode 쪽에서 별도의 VALIDATION_ERROR라는 에러코드 상수를 정의했다.
     @DisplayName("[API][GET] 이벤트 리스트 조회 - 잘못된 검색 파라미터")
     @Test
     void givenWrongParameters_whenRequestingEvents_thenReturnsFailedStandardResponse() throws Exception {
-        //Given
+        // Given
 
-        //When & Then
-        mvc.perform(get("/api/events")
-                        .queryParam("placeId", "0")
-                        .queryParam("eventName", "오")
-                        .queryParam("eventStatus", EventStatus.OPENED.name())
-                        .queryParam("eventStartDatetime", "2021-01-01T00:00:00")
-                        .queryParam("eventEndDatetime", "2021-01-02T00:00:00")
+        // When & Then
+        mvc.perform(
+                        get("/api/events")
+                                .queryParam("placeId", "0")
+                                .queryParam("eventName", "오")
                 )
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.errorCode").value(ErrorCode.VALIDATION_ERROR.getCode()))
-                .andExpect(jsonPath("$.message").value(
-                        containsString(
-                        ErrorCode.VALIDATION_ERROR.getMessage()
-                        )
-                ));
-        then(eventService).shouldHaveNoInteractions();
-    }//func
-
-
-
-
-
+                .andExpect(jsonPath("$.message").value(containsString(ErrorCode.VALIDATION_ERROR.getMessage())));
+    }
 
     @DisplayName("[API][POST] 이벤트 생성")
     @Test
@@ -130,6 +107,7 @@ class APIEventControllerTest {
         // Given
         EventResponse eventResponse = EventResponse.of(
                 1L,
+                createPlaceDTO(1L),
                 "오후 운동",
                 EventStatus.OPENED,
                 LocalDateTime.of(2021, 1, 1, 13, 0, 0),
@@ -148,29 +126,21 @@ class APIEventControllerTest {
                 )
                 .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.data").value(Boolean.TRUE.toString()))
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.errorCode").value(ErrorCode.OK.getCode()))
                 .andExpect(jsonPath("$.message").value(ErrorCode.OK.getMessage()));
         then(eventService).should().createEvent(any());
-    }//func
+    }
 
-
-
-
-
-
-
-    //@Validated을 이용한 검증과는 달리, 예외의 처리가 스프링 프레임워크에게 맡겨지는 검증 방식을 사용한다.
-    //@Validated가 클래스 레벨에서 붙여져서 사용되는 것과는 달리, @Valid는 메서드의 파라미터 레벨에서 붙여저 사용된다는 차이점이 있다.
-    //스프링에서 처리해주는 별도의 예외(>> ResponseEntityExceptionHandler.java 파일 내의 MethodArgumentNotValidException 예외)가 내려오기 때문에, VALIDATION_ERROR가 아니라, SPRINT_BAD_REQUEST를
-    //이용해서 테스트를 진행해야 한다.
-    @DisplayName("[API][POST] 이벤트 생성 - 잘못된 데이터 입력")
+    @DisplayName("[API][POST] 이벤트 생성 - 잘못된 정보 입력")
     @Test
     void givenWrongEvent_whenCreatingAnEvent_thenReturnsFailedStandardResponse() throws Exception {
         // Given
         EventResponse eventResponse = EventResponse.of(
-                -1L,
-                "   ",
+                1L,
+                createPlaceDTO(0L),
+                "  ",
                 null,
                 null,
                 null,
@@ -189,19 +159,9 @@ class APIEventControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.errorCode").value(ErrorCode.SPRING_BAD_REQUEST.getCode()))
-                .andExpect(jsonPath("$.message").value(
-                        containsString(
-                        ErrorCode.SPRING_BAD_REQUEST.getMessage()
-                        )
-                ));
+                .andExpect(jsonPath("$.message").value(containsString(ErrorCode.SPRING_BAD_REQUEST.getMessage())));
         then(eventService).shouldHaveNoInteractions();
-    }//func
-
-
-
-
-
-
+    }
 
     @DisplayName("[API][GET] 단일 이벤트 조회 - 이벤트 있는 경우, 이벤트 데이터를 담은 표준 API 출력")
     @Test
@@ -231,17 +191,12 @@ class APIEventControllerTest {
                 .andExpect(jsonPath("$.errorCode").value(ErrorCode.OK.getCode()))
                 .andExpect(jsonPath("$.message").value(ErrorCode.OK.getMessage()));
         then(eventService).should().getEvent(eventId);
-    }//func
-
-
-
-
-
+    }
 
     @DisplayName("[API][GET] 단일 이벤트 조회 - 이벤트 없는 경우, 빈 표준 API 출력")
     @Test
     void givenEventId_whenRequestingNonexistentEvent_thenReturnsEmptyStandardResponse() throws Exception {
-        // Given
+        // Givenzz
         long eventId = 2L;
         given(eventService.getEvent(eventId)).willReturn(Optional.empty());
 
@@ -254,21 +209,15 @@ class APIEventControllerTest {
                 .andExpect(jsonPath("$.errorCode").value(ErrorCode.OK.getCode()))
                 .andExpect(jsonPath("$.message").value(ErrorCode.OK.getMessage()));
         then(eventService).should().getEvent(eventId);
-    }//func
-
-
-
-
-
-
+    }
 
     @DisplayName("[API][GET] 단일 이벤트 조회 - 파라미터 잘못된 경우, 빈 표준 API 출력")
     @Test
-    void givenWrongEventId_whenRequestingNonexistentEvent_thenReturnsFailedStandardResponse() throws Exception{
-        //Given
+    void givenWrongEventId_whenRequestingNonexistentEvent_thenReturnsFailedStandardResponse() throws Exception {
+        // Givenzz
         long eventId = 0L;
 
-        //When & Then
+        // When & Then
         mvc.perform(get("/api/events/" + eventId))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -276,12 +225,7 @@ class APIEventControllerTest {
                 .andExpect(jsonPath("$.errorCode").value(ErrorCode.VALIDATION_ERROR.getCode()))
                 .andExpect(jsonPath("$.message").value(containsString(ErrorCode.VALIDATION_ERROR.getMessage())));
         then(eventService).shouldHaveNoInteractions();
-    }//func
-
-
-
-
-
+    }
 
     @DisplayName("[API][PUT] 이벤트 변경")
     @Test
@@ -289,7 +233,8 @@ class APIEventControllerTest {
         // Given
         long eventId = 1L;
         EventResponse eventResponse = EventResponse.of(
-                1L,
+                eventId,
+                createPlaceDTO(1L),
                 "오후 운동",
                 EventStatus.OPENED,
                 LocalDateTime.of(2021, 1, 1, 13, 0, 0),
@@ -313,20 +258,16 @@ class APIEventControllerTest {
                 .andExpect(jsonPath("$.errorCode").value(ErrorCode.OK.getCode()))
                 .andExpect(jsonPath("$.message").value(ErrorCode.OK.getMessage()));
         then(eventService).should().modifyEvent(eq(eventId), any());
-    }//func
-
-
-
-
-
+    }
 
     @DisplayName("[API][PUT] 이벤트 변경 - 잘못된 입력")
     @Test
-    void givenWrongEventIdAndInfo_whenModifyingAnEvent_thenReturnsFailedStandardResponse() throws Exception {
+    void givenWrongEventIdAndInfo_whenModifyingAnEvent_thenReturnsSuccessfulStandardResponse() throws Exception {
         // Given
         long eventId = 0L;
         EventResponse eventResponse = EventResponse.of(
-                0L,
+                eventId,
+                createPlaceDTO(0L),
                 "  ",
                 null,
                 null,
@@ -348,13 +289,7 @@ class APIEventControllerTest {
                 .andExpect(jsonPath("$.errorCode").value(ErrorCode.SPRING_BAD_REQUEST.getCode()))
                 .andExpect(jsonPath("$.message").value(containsString(ErrorCode.SPRING_BAD_REQUEST.getMessage())));
         then(eventService).shouldHaveNoInteractions();
-    }//func
-
-
-
-
-
-
+    }
 
     @DisplayName("[API][DELETE] 이벤트 삭제")
     @Test
@@ -367,20 +302,16 @@ class APIEventControllerTest {
         mvc.perform(delete("/api/events/" + eventId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.data").value(Boolean.TRUE.toString()))
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.errorCode").value(ErrorCode.OK.getCode()))
                 .andExpect(jsonPath("$.message").value(ErrorCode.OK.getMessage()));
         then(eventService).should().removeEvent(eq(eventId));
-    }//func
-
-
-
-
-
+    }
 
     @DisplayName("[API][DELETE] 이벤트 삭제 - 잘못된 입력")
     @Test
-    void givenWrongEvent_whenDeletingAnEvent_thenReturnsSuccessfulStandardResponse() throws Exception {
+    void givenWrongEventId_whenDeletingAnEvent_thenReturnsFailedStandardResponse() throws Exception {
         // Given
         long eventId = 0L;
 
@@ -390,34 +321,40 @@ class APIEventControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.errorCode").value(ErrorCode.VALIDATION_ERROR.getCode()))
-                .andExpect(jsonPath("$.message").value(
-                        containsString(
-                                ErrorCode.VALIDATION_ERROR.getMessage()
-                        )
-                ));
+                .andExpect(jsonPath("$.message").value(containsString(ErrorCode.VALIDATION_ERROR.getMessage())));
         then(eventService).shouldHaveNoInteractions();
-    }//func
+    }
 
 
-
-
-
-    //>>>>> Helper Method Area <<<<<
-
-    private EventDTO createEventDTO(){
+    private EventDTO createEventDTO() {
         return EventDTO.of(
                 1L,
+                createPlaceDTO(1L),
                 "오후 운동",
                 EventStatus.OPENED,
-                LocalDateTime.of(2021,1,1,13,0,0),
-                LocalDateTime.of(2021,1,1,16,0,0),
+                LocalDateTime.of(2021, 1, 1, 13, 0, 0),
+                LocalDateTime.of(2021, 1, 1, 16, 0, 0),
                 0,
                 24,
                 "마스크 꼭 착용하세요",
                 LocalDateTime.now(),
                 LocalDateTime.now()
         );
-    }//func
+    }
+
+    private PlaceDTO createPlaceDTO(Long placeId) {
+        return PlaceDTO.of(
+                placeId,
+                PlaceType.COMMON,
+                "배드민턴장",
+                "서울시 가나구 다라동",
+                "010-1111-2222",
+                10,
+                null,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+    }
 
 }//end of class
 

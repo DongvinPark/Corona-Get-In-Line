@@ -15,6 +15,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+
+@DisplayName("View 컨트롤러 - 어드민")
 @WebMvcTest(AdminController.class)
 class AdminControllerTest {
 
@@ -23,6 +25,11 @@ class AdminControllerTest {
     public AdminControllerTest(@Autowired MockMvc mvc) {
         this.mvc = mvc;
     }
+
+
+
+
+
 
     @DisplayName("[view][GET] 어드민 페이지 - 장소 리스트 뷰")
     @Test
@@ -41,6 +48,11 @@ class AdminControllerTest {
                 .andExpect(view().name("admin/places"));
     }
 
+
+
+
+
+
     @DisplayName("[view][GET] 어드민 페이지 - 장소 세부 정보 뷰")
     @Test
     void givenPlaceId_whenRequestingAdminPlaceDetailPage_thenReturnsAdminPlaceDetailPage() throws Exception {
@@ -53,6 +65,12 @@ class AdminControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(view().name("admin/place-detail"));
     }
+
+
+
+
+
+
 
     @DisplayName("[view][GET] 어드민 페이지 - 이벤트 리스트 뷰")
     @Test
@@ -74,6 +92,11 @@ class AdminControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(view().name("admin/events"));
     }
+
+
+
+
+
 
     @DisplayName("[view][GET] 어드민 페이지 - 이벤트 세부 정보 뷰")
     @Test
