@@ -43,6 +43,8 @@ public class Event {
     private String eventName;
 
     @Setter
+    //columnDefinition의 부작용 >> 특정 DB에 종속적을 설정을 해줘야 하는 경우가 많다는 점.
+    //예를 들어서 mysql을 쓴다면, mysql문법에 맞는 columnDefinition을 써야한다는 것이다.
     @Column(nullable = false, columnDefinition = "varchar(20) default 'OPENED'")
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus;
