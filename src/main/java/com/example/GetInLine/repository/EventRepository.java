@@ -3,11 +3,14 @@ package com.example.GetInLine.repository;
 
 import com.example.GetInLine.constant.EventStatus;
 import com.example.GetInLine.domain.Event;
+import com.example.GetInLine.domain.Place;
 import com.example.GetInLine.domain.QEvent;
 import com.example.GetInLine.dto.EventDTO;
 import com.example.GetInLine.repository.querydsl.EventRepositoryCustom;
 import com.querydsl.core.types.dsl.ComparableExpression;
 import com.querydsl.core.types.dsl.StringExpression;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.binding.QuerydslBinderCustomizer;
@@ -26,6 +29,9 @@ public interface EventRepository extends
         QuerydslPredicateExecutor<Event>,
         QuerydslBinderCustomizer<QEvent>
 {
+
+    Page<Event> findByPlace(Place place, Pageable pageable);
+
     @Override
     default void customize(QuerydslBindings bindings, QEvent root){
         bindings.excludeUnlistedProperties(true);

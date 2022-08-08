@@ -350,7 +350,53 @@ class PlaceServiceTest {
                 .isInstanceOf(GeneralException.class)
                 .hasMessageContaining(ErrorCode.DATA_ACCESS_ERROR.getMessage());
         then(placeRepository).should().deleteById(placeId);
+}//func
+
+
+
+
+
+    @DisplayName("ID가 포함된 장소 정보를 주면, 장소 정보를 변경하고 결과를 true로 보여준다.")
+    @Test
+    void givenPlaceContainingId_whenUpserting_thenModifiesPlaceAndReturnsTrue(){
+        //Given
+        Place originalPlace = createPlace(PlaceType.SPORTS, "체육관");
+        Place changedPlace = createPlace(PlaceType.PARTY, "무도회장");
+        given(placeRepository.findById(changedPlace.getId())).willReturn(Optional.of(originalPlace));
+        given(placeRepository.save(changedPlace)).willReturn(changedPlace);
+
+        //When
+        boolean result = sut.upsertPlace(PlaceDTO.of(changedPlace));
+
+        //Then
+        assertThat(result).isTrue();
+        then(placeRepository).should().findById(changedPlace.getId());
+        then(placeRepository).should().save(changedPlace);
     }//func
+
+
+
+
+
+
+    @DisplayName("ID가 빠진 장소 정보를 주면, 장소 정보를 저장하고 결과를 true로 보여준다.")
+    @Test
+    void givenPlaceWithoutId_whenUpserting_thenCreatesPlaceAndReturnsTrue(){
+       //Given
+       Place place = createPlace(null, PlaceType.PARTY, "무도회장");
+       given(placeRepository.save(any(Place.class))).willReturn(place);
+
+       //When
+       boolean result = sut.upsertPlace(PlaceDTO.of(place));
+
+       //Then
+       assertThat(result).isTrue();
+       then(placeRepository).should(never()).findById(any());
+       then(placeRepository).should().save(any(Place.class));
+    }//
+
+
+
 
 
 
@@ -364,7 +410,7 @@ class PlaceServiceTest {
 
 
     private Place createPlace(
-           long id, PlaceType placeType, String placeName
+           Long id, PlaceType placeType, String placeName
     ){
         Place place = Place.of(
                 placeType, placeName, "주소 테스트", "010-1234-5678", 24, "마스크 꼭 착용하세요"

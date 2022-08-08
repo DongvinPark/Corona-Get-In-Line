@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 //컨트롤러 어드바이스의 등장이다. 뷰에 대한 예외 처리를 위한 것이다.
@@ -26,22 +27,32 @@ public class BaseExceptionHandler {
                 Map.of(
                         "statusCode", errorCode.getHttpStatus().value(),
                         "errorCode", errorCode,
-                        "message", errorCode.getMessage(e)
+                        "message", errorCode.getMessage()
                 ),
                 errorCode.getHttpStatus()
         );
     }//func
 
+
+
+
+
+
     //general 예외에서조차도 잡지 못한 예외를 잡기 위한 파트
     @ExceptionHandler
-    public ModelAndView exception(Exception e){
-        ErrorCode errorCode = ErrorCode.INTERNAL_ERROR;
-        //HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+    public ModelAndView exception(Exception e, HttpServletResponse response){
+        HttpStatus httpStatus = HttpStatus.valueOf(response.getStatus());
+        ErrorCode errorCode = httpStatus.is4xxClientError() ? ErrorCode.BAD_REQUEST : ErrorCode.INTERNAL_ERROR;
+
+        if(httpStatus == HttpStatus.OK){
+            httpStatus = HttpStatus.FORBIDDEN;
+            errorCode = ErrorCode.BAD_REQUEST;
+        }
 
         return new ModelAndView(
                 "error",
                 Map.of(
-                        "statusCode", errorCode.getHttpStatus().value(),
+                        "statusCode", httpStatus.value(),
                         "errorCode", errorCode,
                         "message", errorCode.getMessage(e)
                 ),

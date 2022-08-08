@@ -24,6 +24,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -39,11 +40,6 @@ import static org.mockito.Mockito.verify;
 @DisplayName("비즈니스 로직 - 이벤트")
 @ExtendWith(MockitoExtension.class)//repository 패키지 내부의 EventRepository를 테스트에 활용하기 위한 조치.
 class EventServiceTest {
-
-    /*@BeforeEach//@SpringBootTest를 쓸 경우, 스프링 컨테이너를 run하는데 시간이 많이 걸려서 대신 이걸 씀.
-    void setUp(){
-        sut = new EventService();
-    }*///Mockito 기능을 쓰게 되면서 여기는 필요 없게 됨.
 
     //@Mock 붙어 있는 eventRepository를, @InjectMocks가 붙어 있는 EventService sut에다가 주입해 줌.
     @InjectMocks private EventService sut;
@@ -180,12 +176,36 @@ class EventServiceTest {
 
 
 
+
+    @DisplayName("장소 ID로 존재하는 이벤트를 조회하면, 페이징 된 해당 이벤트 정보를 출력하여 보여준다.")
+    @Test
+    void givenPlaceIdAndPageable_whenSearchingEventsWithPlace_thenReturnsEventsPage() {
+        //Given
+        long placeId = 1L;
+        Place place = createPlace();
+        given(placeRepository.getById(placeId)).willReturn(place);
+        given(eventRepository.findByPlace(place, PageRequest.ofSize(5))).willReturn(Page.empty());
+
+        //When
+        Page<EventViewResponse> result = sut.getEvent(placeId, PageRequest.ofSize(5));
+
+        //Then
+        assertThat(result).hasSize(0);
+        then(placeRepository).should().getById(placeId);
+        then(eventRepository).should().findByPlace(place, PageRequest.ofSize(5));
+    }//func
+
+
+
+
     @DisplayName("이벤트 정보를 주면, 이벤트를 생성하고 결과를 true로 보여준다.")
     @Test
     void givenEvent_whenCreating_thenCreatesEventAndReturnsTrue(){
         //Given
         EventDTO eventDTO = EventDTO.of(createEvent("오후 운동", false));
-        given(placeRepository.findById(eventDTO.placeDTO().id())).willReturn(Optional.of(createPlace()));
+
+        given(placeRepository.getById(eventDTO.placeDTO().id())).willReturn(createPlace());
+
         given(eventRepository.save(any(Event.class))).willReturn(any());
 
         //When
@@ -193,7 +213,7 @@ class EventServiceTest {
 
         //Then
         assertThat(result).isTrue();
-        then(placeRepository).should().findById(eventDTO.placeDTO().id());
+        then(placeRepository).should().getById(eventDTO.placeDTO().id());
         then(eventRepository).should().save(any(Event.class));
     }//func
 
@@ -221,18 +241,19 @@ class EventServiceTest {
     @Test
     void givenWrongPlaceId_whenCreating_thenThrowsGeneralException(){
         //Given
-        Event event = createEvent(null, false);
-        given(placeRepository.findById(event.getPlace().getId())).willReturn(Optional.empty());
+        EventDTO eventDTO = EventDTO.of(createEvent("오후 운동", false));
+        given(placeRepository.getById(eventDTO.placeDTO().id())).willReturn(null);
+        given(eventRepository.save(any(Event.class))).willThrow(EntityNotFoundException.class);
 
         //When
-        Throwable thrown = catchThrowable( ()->sut.createEvent(EventDTO.of(event)) );
+        Throwable thrown = catchThrowable( ()->sut.createEvent(eventDTO) );
 
         //Then
         assertThat(thrown)
                 .isInstanceOf(GeneralException.class)
                 .hasMessageContaining(ErrorCode.DATA_ACCESS_ERROR.getMessage());
-        then(placeRepository).should().findById(event.getPlace().getId());
-        then(eventRepository).shouldHaveNoInteractions();
+        then(placeRepository).should().getById(eventDTO.placeDTO().id());
+        then(eventRepository).should().save(any(Event.class));
     }//func
 
 
@@ -242,20 +263,20 @@ class EventServiceTest {
     @Test
     void givenDataRelatedException_whenCreating_thenThrowsGeneralException(){
         //Given
-        Event event = createEvent(null, false);
+        EventDTO eventDTO = EventDTO.of(createEvent("오후 운동", false));
         RuntimeException e = new RuntimeException("This is test.");
-        given(placeRepository.findById(event.getPlace().getId())).willReturn(Optional.of(createPlace()));
-        given(eventRepository.save(any())).willThrow(e);
+        given(placeRepository.getById(eventDTO.placeDTO().id())).willReturn(null);
+        given(eventRepository.save(any(Event.class))).willThrow(e);
 
         //When
-        Throwable thrown = catchThrowable(()->sut.createEvent(EventDTO.of(event)));
+        Throwable thrown = catchThrowable(()->sut.createEvent(eventDTO));
 
         //Then
         assertThat(thrown)
                 .isInstanceOf(GeneralException.class)
                         .hasMessageContaining(ErrorCode.DATA_ACCESS_ERROR.getMessage());
-        then(placeRepository).should().findById(event.getPlace().getId());
-        then(eventRepository).should().save(any());
+        then(placeRepository).should().getById(eventDTO.placeDTO().id());
+        then(eventRepository).should().save(any(Event.class));
     }//func
 
 
@@ -402,14 +423,68 @@ class EventServiceTest {
 
 
 
+    @DisplayName("ID가 포함된 이벤트 정보를 주면, 이벤트 정보를 변경하고 결과를 true로 보여준다.")
+    @Test
+    void givenEventContainingId_whenUpserting_thenModifiesEventAndReturnsTrue(){
+        //Given
+        Event originalEvent = createEvent("오후 운동", false);
+        Event changedEvent = createEvent("오전 운동", true);
+        given(eventRepository.findById(changedEvent.getId())).willReturn(Optional.of(originalEvent));
+        given(eventRepository.save(changedEvent)).willReturn(changedEvent);
+
+        //When
+        boolean result = sut.upsertEvent(EventDTO.of(changedEvent));
+
+        //Then
+        assertThat(result).isTrue();
+        assertThat(originalEvent.getEventName()).isEqualTo(changedEvent.getEventName());
+        assertThat(originalEvent.getEventStartDatetime()).isEqualTo(changedEvent.getEventStartDatetime());
+        assertThat(originalEvent.getEventEndDatetime()).isEqualTo(changedEvent.getEventEndDatetime());
+        assertThat(originalEvent.getEventStatus()).isEqualTo(changedEvent.getEventStatus());
+        then(eventRepository).should().findById(changedEvent.getId());
+        then(eventRepository).should().save(changedEvent);
+    }//func
+
+
+
+
+
+    @DisplayName("ID가 빠진 이벤트 정보를 주면, 이벤트 정보를 저장하고 결과를 true로 보여준다.")
+    @Test
+    void givenEventWithoutId_whenUpserting_thenCreatesEventAndReturnsTrue(){
+        //Given
+        EventDTO eventDTO = EventDTO.of(createEvent(null, "오후 운동", false));
+        given(placeRepository.getById(eventDTO.placeDTO().id())).willReturn(createPlace());
+        given(eventRepository.save(any(Event.class))).willReturn(any());
+
+        //When
+        boolean result = sut.upsertEvent(eventDTO);
+
+        //Then
+        assertThat(result).isTrue();
+        then(placeRepository).should().getById(eventDTO.placeDTO().id());
+        then(eventRepository).should(never()).findById(any());
+        then(eventRepository).should().save(any(Event.class));
+    }//func
+
+
+
+
+
     //  >>>>> Helper Methods Area <<<<<
 
+
     private Event createEvent(String eventName, boolean isMorning){
+        return createEvent(1L, eventName, isMorning);
+    }
+
+
+    private Event createEvent(Long eventId, String eventName, boolean isMorning){
         String hourStart = isMorning ? "09" : "13";
         String hourEnd = isMorning ? "12" : "16";
 
         return createEvent(
-                1L,
+                eventId,
                 1L,
                 eventName,
                 EventStatus.OPENED,
@@ -420,8 +495,8 @@ class EventServiceTest {
 
 
     private Event createEvent(
-            long id,
-            long placeId,
+            Long id,
+            Long placeId,
             String eventName,
             EventStatus eventStatus,
             LocalDateTime eventStartDatetime,
@@ -448,7 +523,7 @@ class EventServiceTest {
     }//func
 
 
-    private Place createPlace(long id){
+    private Place createPlace(Long id){
         Place place = Place.of(PlaceType.COMMON, "test place", "test address", "010-1234-1234", 10, null);
         ReflectionTestUtils.setField(place, "id", id);
         return place;

@@ -18,6 +18,10 @@ public record PlaceDTO(
         LocalDateTime modifiedAt
 ) {
 
+    public static PlaceDTO idOnly(Long id){
+        return PlaceDTO.of(id, null, null, null, null, null, null, null, null);
+    }
+
     public static PlaceDTO of(
             Long id,
             PlaceType placeType,

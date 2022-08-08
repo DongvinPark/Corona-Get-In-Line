@@ -7,7 +7,7 @@ plugins {
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
+sourceCompatibility = '16'
 
 configurations {
 	compileOnly {
@@ -27,7 +27,7 @@ project.ext{
 }
 
 dependencies {
-	//스프링 데브 툴스를 사용하기 시작한다.
+	//스프링 데브 툴스와 액추에이터를 사용하기 시작한다.
 	implementation 'org.springframework.boot:spring-boot-devtools'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
@@ -37,10 +37,13 @@ dependencies {
 	//hal explorer를 사용한다.
 	implementation 'org.springframework.data:spring-data-rest-hal-explorer'
 
+	//스프링 밸리데이션을 사용한다.
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
 
@@ -60,7 +63,12 @@ dependencies {
 
 	annotationProcessor "jakarta.persistence:jakarta.persistence-api"//이놈과
 	annotationProcessor "jakarta.annotation:jakarta.annotation-api"//이놈을 추가해 줘야
-	//정상적으로 Q클래스가 생성되고 프로젝트 컴파일도 된다.
+	//정상적으로 QueryDSL의 Q클래스가 생성되고 프로젝트 컴파일도 된다.
+
+	//spring security를 사용하기 시작한다.
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
+	testImplementation 'org.springframework.security:spring-security-test'
 }
 
 tasks.named('test') {

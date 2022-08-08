@@ -49,6 +49,16 @@ public record EventResponse(
         );
     }//func
 
+
+
+    public static EventResponse empty(PlaceDTO placeDTO){
+        return EventResponse.of(null, placeDTO, null, null, null, null, null, null, null);
+    }
+
+    public String getPlaceName(){
+        return this.placeDTO().placeName();
+    }
+
 }//end of class
 
 

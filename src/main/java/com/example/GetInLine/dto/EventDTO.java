@@ -6,6 +6,7 @@ import com.example.GetInLine.domain.Event;
 import com.example.GetInLine.domain.Place;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public record EventDTO(
         Long id,

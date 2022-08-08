@@ -2,6 +2,7 @@ package com.example.GetInLine.dto;
 
 
 import com.example.GetInLine.constant.EventStatus;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -10,18 +11,18 @@ import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 
 public record EventRequest(
-        @NotNull @Positive Long placeId,
+        Long id,
         @NotBlank String eventName,
         @NotNull EventStatus eventStatus,
-        @NotNull LocalDateTime eventStartDatetime,
-        @NotNull LocalDateTime eventEndDatetime,
+        @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime eventStartDatetime,
+        @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime eventEndDatetime,
         @NotNull @PositiveOrZero Integer currentNumberOfPeople,
         @NotNull @Positive Integer capacity,
         String memo
 ) {
 
     public static EventRequest of(
-            Long placeId,
+            Long id,
             String eventName,
             EventStatus eventStatus,
             LocalDateTime eventStartDatetime,
@@ -30,15 +31,14 @@ public record EventRequest(
             Integer capacity,
             String memo
     ){
-        return new EventRequest(placeId, eventName, eventStatus, eventStartDatetime, eventEndDatetime, currentNumberOfPeople, capacity, memo);
+        return new EventRequest(id, eventName, eventStatus, eventStartDatetime, eventEndDatetime, currentNumberOfPeople, capacity, memo);
     }
 
 
-    public EventDTO toDTO(){
+    public EventDTO toDTO(PlaceDTO placeDTO){
         return EventDTO.of(
-                null,
-                null,//직전 커밋에서는 this.placeId(),이었는데, 김은호 쌤 깃허브에서는 여기를 null로 하고,
-                            //TODO : 여기를 반드시 적절히 고쳐야 사용할 수 있음. 이라고 써 있었음.
+                this.id(),
+                placeDTO,
                 this.eventName(),
                 this.eventStatus(),
                 this.eventStartDatetime(),

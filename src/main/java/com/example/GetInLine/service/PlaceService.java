@@ -8,14 +8,18 @@ import com.example.GetInLine.exception.GeneralException;
 import com.example.GetInLine.repository.PlaceRepository;
 import com.querydsl.core.types.Predicate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+@Slf4j
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class PlaceService {
 
@@ -23,6 +27,7 @@ public class PlaceService {
 
 
 
+    @Transactional(readOnly = true)
     public List<PlaceDTO> getPlaces(Predicate predicate){
         try{
             return StreamSupport.stream( placeRepository.findAll(predicate).spliterator(), false )
@@ -39,11 +44,33 @@ public class PlaceService {
 
 
 
+    @Transactional(readOnly = true)
     public Optional<PlaceDTO> getPlace(Long placeId){
         try{
             return placeRepository.findById(placeId).map(PlaceDTO::of);
         }
         catch(Exception e){
+            throw new GeneralException(ErrorCode.DATA_ACCESS_ERROR, e);
+        }
+    }//func
+
+
+
+
+
+
+    public boolean upsertPlace(PlaceDTO placeDTO){
+        try{
+            if(placeDTO.id()!=null){
+                log.info("플레이스서비스 업서트 - 수정파트 진입");
+                return modifyPlace(placeDTO.id(), placeDTO);
+            }
+            else{
+                log.info("플레이스서비스 업서트 - 생성파트 진입");
+                return createPlace(placeDTO);
+            }
+        }
+        catch (Exception e){
             throw new GeneralException(ErrorCode.DATA_ACCESS_ERROR, e);
         }
     }//func

@@ -4,11 +4,15 @@ import com.example.GetInLine.constant.EventStatus;
 import com.example.GetInLine.dto.EventDTO;
 import com.example.GetInLine.service.EventService;
 import com.example.GetInLine.service.PlaceService;
+import org.apache.catalina.security.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
@@ -30,7 +34,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @DisplayName("View 컨트롤러 - 이벤트")
-@WebMvcTest(EventController.class)
+@WebMvcTest(
+        controllers = EventController.class,
+
+        //아래의 두 줄의 인자가 왜 더 필요한지에 대해서는 BaseErrorControllerTest.java 파일에
+        //설명해 두었다.
+        excludeAutoConfiguration = SecurityAutoConfiguration.class,
+        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class)
+)
 class EventControllerTest {
 
     private final MockMvc mvc;
@@ -135,11 +146,11 @@ class EventControllerTest {
         EventStatus eventStatus = EventStatus.OPENED;
         LocalDateTime eventStartDatetime = LocalDateTime.of(2021,1,1,0,0,0);
         LocalDateTime eventEndDatetime = LocalDateTime.of(2021,1,2,0,0,0);
-        given(
+        /*given(
                 eventService.getEventViewResponse(
                         placeName, eventName, eventStatus, eventStartDatetime, eventEndDatetime, PageRequest.of(1,3)
                 )
-        ).willReturn(Page.empty());
+        ).willReturn(Page.empty());*/
 
         //When & Then
         mvc.perform(
@@ -152,7 +163,7 @@ class EventControllerTest {
                                 .queryParam("page", "1")
                                 .queryParam("size", "3")
                 )
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isForbidden())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(view().name("error"))
                 .andExpect(model().attributeDoesNotExist("events"));
@@ -166,7 +177,7 @@ class EventControllerTest {
 
     @DisplayName("[view][GET] 이벤트 세부 정보 페이지")
     @Test
-    void givenNothing_whenRequestingEventDetailPage_thenReturnsEventDetailPage() throws Exception {
+    void givenEventId_whenRequestingEventDetailPage_thenReturnsEventDetailPage() throws Exception {
         // Given
         long eventId = 1L;
         given(eventService.getEvent(eventId)).willReturn(Optional.of(

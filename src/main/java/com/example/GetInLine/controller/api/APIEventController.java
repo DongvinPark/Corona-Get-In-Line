@@ -37,6 +37,10 @@ public class APIEventController {
 
     private final EventService eventService;
 
+
+
+
+
     @GetMapping("/events")
     public APIDataResponse<List<EventResponse>> getEvents(
             @Positive Long placeId,
@@ -68,13 +72,25 @@ public class APIEventController {
         )));
     }
 
+
+
+
+
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/events")
-    public APIDataResponse<String> createEvent(@Valid @RequestBody EventRequest eventRequest) {
-        boolean result = eventService.createEvent(eventRequest.toDTO());
+    @PostMapping("/events/{placeId}/events")
+    public APIDataResponse<String> createEvent(
+            @Valid @RequestBody EventRequest eventRequest,
+            @PathVariable Long placeId
+    ) {
+        boolean result = eventService.createEvent(eventRequest.toDTO(PlaceDTO.idOnly(placeId)));
 
         return APIDataResponse.of(Boolean.toString(result));
     }
+
+
+
+
+
 
     @GetMapping("/events/{eventId}")
     public APIDataResponse<EventResponse> getEvent(@Positive @PathVariable Long eventId) {
@@ -83,14 +99,24 @@ public class APIEventController {
         return APIDataResponse.of(eventResponse);
     }
 
+
+
+
+
+
     @PutMapping("/events/{eventId}")
     public APIDataResponse<String> modifyEvent(
             @Positive @PathVariable Long eventId,
             @Valid @RequestBody EventRequest eventRequest
     ) {
-        boolean result = eventService.modifyEvent(eventId, eventRequest.toDTO());
+        boolean result = eventService.modifyEvent(eventId, eventRequest.toDTO(null));
         return APIDataResponse.of(Boolean.toString(result));
     }
+
+
+
+
+
 
     @DeleteMapping("/events/{eventId}")
     public APIDataResponse<String> removeEvent(@Positive @PathVariable Long eventId) {

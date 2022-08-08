@@ -9,8 +9,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/api")
-@RestController
+/**
+ * 뷰의 조회와 관련 CRUD 기능을 전부 다른 컨트롤러에서 실행시키기 때문에 사실상
+ * 필요가 없어진 컨트롤러임.
+ * */
+
+//@RequestMapping("/api")
+//@RestController
+@Deprecated
 public class APIPlaceController {
 
     @GetMapping("/places")

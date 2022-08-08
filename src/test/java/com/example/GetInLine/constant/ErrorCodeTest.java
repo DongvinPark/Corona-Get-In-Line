@@ -17,6 +17,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 //enum 클래스는 인스턴스를 만들어서 테스트하지는 않는다.
 
+@DisplayName("에러 처리 - 에러 코드")
 class ErrorCodeTest {
 
     //이 테스트는 아무래도, ErrorCode의 OK 상수에 대한 테스라고 봐야 한다.

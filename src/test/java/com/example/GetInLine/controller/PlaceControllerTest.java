@@ -1,12 +1,17 @@
 package com.example.GetInLine.controller;
 
+//import com.example.GetInLine.config.ForPasswordEncoder;
 import com.example.GetInLine.dto.PlaceDTO;
 import com.example.GetInLine.service.PlaceService;
+import org.apache.catalina.security.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -24,7 +29,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @DisplayName("View 컨트롤러 - 장소")
-@WebMvcTest(PlaceController.class)
+@WebMvcTest(
+        controllers = PlaceController.class,
+
+        //아래의 두 줄의 인자가 왜 더 필요한지에 대해서는 BaseErrorControllerTest.java 파일에
+        //설명해 두었다.
+        excludeAutoConfiguration = SecurityAutoConfiguration.class,
+        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class)
+)
 class PlaceControllerTest {
 
     private final MockMvc mvc;

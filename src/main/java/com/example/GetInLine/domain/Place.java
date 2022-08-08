@@ -81,7 +81,8 @@ public class Place {
 
     @ToString.Exclude
     @OrderBy("id")
-    @OneToMany(mappedBy = "place")
+    //cascade = CascadeType.REMOVE는 왜 나온 것인가?
+    @OneToMany(mappedBy = "place", cascade = CascadeType.REMOVE)
     private final Set<AdminPlaceMap> adminPlaceMaps = new LinkedHashSet<>();
 
 

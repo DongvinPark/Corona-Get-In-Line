@@ -5,8 +5,14 @@ import com.example.GetInLine.dto.AdminRequest;
 import com.example.GetInLine.dto.LoginRequest;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/api")
-@RestController
+/**
+ * 뷰의 제어와 각종 CRUD 기능을 전부 다른 컨트롤러에서 담당하기 때문에
+ * 필요가 없어진 컨트롤러임.
+ * */
+
+@Deprecated
+//@RequestMapping("/api")
+//@RestController
 public class APIAuthController {
 
     @PostMapping("/sign-up")

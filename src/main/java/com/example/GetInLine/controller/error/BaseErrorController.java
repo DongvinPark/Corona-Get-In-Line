@@ -8,6 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
@@ -17,10 +19,15 @@ import java.util.Map;
 @Controller
 public class BaseErrorController implements ErrorController {
 
-    @GetMapping(path = "/error", produces = MediaType.TEXT_HTML_VALUE)
+    @RequestMapping(path = "/error", produces = MediaType.TEXT_HTML_VALUE)
     public ModelAndView errorHtml(HttpServletResponse response){
         HttpStatus status = HttpStatus.valueOf(response.getStatus());
         ErrorCode errorCode = status.is4xxClientError() ? ErrorCode.BAD_REQUEST : ErrorCode.INTERNAL_ERROR;
+
+        if(status == HttpStatus.OK){
+            status = HttpStatus.FORBIDDEN;
+            errorCode = ErrorCode.BAD_REQUEST;
+        }
 
         return new ModelAndView("error",
                 Map.of(
@@ -33,10 +40,15 @@ public class BaseErrorController implements ErrorController {
     }//func
 
 
-    @GetMapping("/error")
+    @RequestMapping("/error")
     public ResponseEntity<APIErrorResponse> error(HttpServletResponse response){
         HttpStatus status = HttpStatus.valueOf(response.getStatus());
         ErrorCode errorCode = status.is4xxClientError() ? ErrorCode.BAD_REQUEST : ErrorCode.INTERNAL_ERROR;
+
+        if(status == HttpStatus.OK){
+            status = HttpStatus.FORBIDDEN;
+            errorCode = ErrorCode.BAD_REQUEST;
+        }
 
         return ResponseEntity
                 .status(status)
