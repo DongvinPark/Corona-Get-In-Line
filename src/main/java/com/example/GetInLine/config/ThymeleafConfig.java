@@ -101,15 +101,6 @@ public class GetInLineApplication {
 @Configuration
 public class ThymeleafConfig {
 
-    @Bean
-    public SpringResourceTemplateResolver thymeleafTemplateResolver(
-            SpringResourceTemplateResolver defaultTemplateResolver,
-            Thymeleaf3Properties thymeleaf3Properties
-    ){
-        defaultTemplateResolver.setUseDecoupledLogic(thymeleaf3Properties.isDecoupledLogic());
-        return defaultTemplateResolver;
-    }
-
     @Getter
     @RequiredArgsConstructor
     @ConstructorBinding
@@ -121,7 +112,34 @@ public class ThymeleafConfig {
         private final boolean decoupledLogic;
     }
 
+    @Bean
+    public SpringResourceTemplateResolver thymeleafTemplateResolver(
+            SpringResourceTemplateResolver defaultTemplateResolver,
+            Thymeleaf3Properties thymeleaf3Properties
+    ){
+        defaultTemplateResolver.setUseDecoupledLogic(thymeleaf3Properties.isDecoupledLogic());
+        return defaultTemplateResolver;
+    }
+
 }//end of class
+/*
+
+헤로쿠에 배포하자 이런 오류가 발생했다.
+
+2022-08-09T07:25:08.836967+00:00 app[web.1]: ***************************
+2022-08-09T07:25:08.836967+00:00 app[web.1]: APPLICATION FAILED TO START
+2022-08-09T07:25:08.836967+00:00 app[web.1]: ***************************
+2022-08-09T07:25:08.836967+00:00 app[web.1]:
+2022-08-09T07:25:08.836968+00:00 app[web.1]: Description:
+2022-08-09T07:25:08.836968+00:00 app[web.1]:
+2022-08-09T07:25:08.836969+00:00 app[web.1]: Parameter 1 of method thymeleafTemplateResolver in com.example.GetInLine.config.ThymeleafConfig required a bean of type 'com.example.GetInLine.config.ThymeleafConfig$Thymeleaf3Properties' that could not be found.
+2022-08-09T07:25:08.836969+00:00 app[web.1]:
+2022-08-09T07:25:08.836969+00:00 app[web.1]:
+2022-08-09T07:25:08.836970+00:00 app[web.1]: Action:
+2022-08-09T07:25:08.836970+00:00 app[web.1]:
+2022-08-09T07:25:08.836971+00:00 app[web.1]: Consider defining a bean of type 'com.example.GetInLine.config.ThymeleafConfig$Thymeleaf3Properties' in your configuration.
+
+* */
 
 
 
