@@ -101,25 +101,28 @@ public class GetInLineApplication {
 @Configuration
 public class ThymeleafConfig {
 
-    @Getter
-    @RequiredArgsConstructor
-    @ConstructorBinding
-    @ConfigurationProperties("spring.thymeleaf3")
-    public static class Thymeleaf3Properties{
-        /**
-         * Thymeleaf에서 De-coupled 기능의 활성화
-         */
-        private final boolean decoupledLogic;
-    }
+    private ForThymeleafProperties forThymeleafProperties;
 
     @Bean
     public SpringResourceTemplateResolver thymeleafTemplateResolver(
             SpringResourceTemplateResolver defaultTemplateResolver,
-            Thymeleaf3Properties thymeleaf3Properties
+            ForThymeleafProperties forThymeleafProperties
     ){
-        defaultTemplateResolver.setUseDecoupledLogic(thymeleaf3Properties.isDecoupledLogic());
+        defaultTemplateResolver.setUseDecoupledLogic(forThymeleafProperties.isDecoupledLogic());
         return defaultTemplateResolver;
     }
+
+
+    /*@Getter
+    @RequiredArgsConstructor
+    @ConstructorBinding
+    @ConfigurationProperties("spring.thymeleaf3")
+    public static class Thymeleaf3Properties{
+        *//**
+         * Thymeleaf에서 De-coupled 기능의 활성화
+         *//*
+        private final boolean decoupledLogic;
+    }*/
 
 }//end of class
 /*
